@@ -1,0 +1,90 @@
+#define LEFT_MOTOR_IN1 9
+#define LEFT_MOTOR_IN2 10
+#define RIGHT_MOTOR_IN3 11
+#define RIGHT_MOTOR_IN4 12
+#define LEFT_SPEED 5
+#define RIGHT_SPEED 6
+
+#define IR_LEFT 2
+#define IR_RIGHT 7
+
+int baseSpeed = 75;  // Base speed (PWM value: 0-255)
+int turnAdjust = 50;  // Speed adjustment for turning
+
+void setup() {
+  // Motor pins setup
+  pinMode(LEFT_MOTOR_IN1, OUTPUT);
+  pinMode(LEFT_MOTOR_IN2, OUTPUT);
+  pinMode(RIGHT_MOTOR_IN3, OUTPUT);
+  pinMode(RIGHT_MOTOR_IN4, OUTPUT);
+
+  pinMode(LEFT_SPEED, OUTPUT);
+  pinMode(RIGHT_SPEED, OUTPUT);
+
+  // IR sensor pins setup
+  pinMode(IR_LEFT, INPUT);
+  pinMode(IR_RIGHT, INPUT);
+}
+
+void loop() {
+  // Read sensor values
+  int left = digitalRead(IR_LEFT);
+  int right = digitalRead(IR_RIGHT);
+
+  // If both sensors detect the line (black), move forward
+  if (left == 0 && right == 0) {
+    moveForward(baseSpeed);
+  }
+  // If the left sensor detects the line (black), turn left
+  else if (left == 0 && right == 1) {
+    turnLeft(baseSpeed, turnAdjust);
+  }
+  // If the right sensor detects the line (black), turn right
+  else if (left == 1 && right == 0) {
+    turnRight(baseSpeed, turnAdjust);
+  }
+  // If neither sensor detects the line, stop the robot
+  else {
+    stopMotors();
+  }
+}
+
+// Function to move the robot forward
+void moveForward(int speed) {
+  analogWrite(LEFT_SPEED, speed);
+  analogWrite(RIGHT_SPEED, speed);
+  digitalWrite(LEFT_MOTOR_IN1, HIGH);
+  digitalWrite(LEFT_MOTOR_IN2, LOW);
+  digitalWrite(RIGHT_MOTOR_IN3, HIGH);
+  digitalWrite(RIGHT_MOTOR_IN4, LOW);
+}
+
+// Function to turn the robot left
+void turnLeft(int baseSpeed, int adjust) {
+  analogWrite(LEFT_SPEED, baseSpeed - adjust);  // Reduce left motor speed
+  analogWrite(RIGHT_SPEED, baseSpeed + adjust); // Increase right motor speed
+  digitalWrite(LEFT_MOTOR_IN1, HIGH);
+  digitalWrite(LEFT_MOTOR_IN2, LOW);
+  digitalWrite(RIGHT_MOTOR_IN3, HIGH);
+  digitalWrite(RIGHT_MOTOR_IN4, LOW);
+}
+
+// Function to turn the robot right
+void turnRight(int baseSpeed, int adjust) {
+  analogWrite(LEFT_SPEED, baseSpeed + adjust);  // Increase left motor speed
+  analogWrite(RIGHT_SPEED, baseSpeed - adjust); // Reduce right motor speed
+  digitalWrite(LEFT_MOTOR_IN1, HIGH);
+  digitalWrite(LEFT_MOTOR_IN2, LOW);
+  digitalWrite(RIGHT_MOTOR_IN3, HIGH);
+  digitalWrite(RIGHT_MOTOR_IN4, LOW);
+}
+
+// Function to stop the motors
+void stopMotors() {
+  analogWrite(LEFT_SPEED, 0);
+  analogWrite(RIGHT_SPEED, 0);
+  digitalWrite(LEFT_MOTOR_IN1, LOW);
+  digitalWrite(LEFT_MOTOR_IN2, LOW);
+  digitalWrite(RIGHT_MOTOR_IN3, LOW);
+  digitalWrite(RIGHT_MOTOR_IN4, LOW);
+}
